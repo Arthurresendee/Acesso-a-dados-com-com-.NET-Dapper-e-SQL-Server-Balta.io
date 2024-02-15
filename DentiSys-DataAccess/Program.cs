@@ -2,6 +2,7 @@
 using DentiSys_DataAccess.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Data;
 using System.Net.NetworkInformation;
 
 var connectionString = "Server=localhost;Database=DB_DentiSys_DataAcces;User ID=sa;Password=root; TrustServerCertificate=true";
@@ -9,11 +10,14 @@ var connectionString = "Server=localhost;Database=DB_DentiSys_DataAcces;User ID=
 using(var connection = new SqlConnection(connectionString))
 {
     //ListPatients(connection);
-    GetPatient(connection,new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"));
+    //GetPatient(connection,new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"));
     //CreatePatient(connection);
     //UpdatePatient(connection);
     //DeletePatiente(connection);
     //CreateManyPatients(connection);
+    //ExecuteDeleteProcedure(connection, new Guid("b0f1649f-090e-4ab6-88c1-125486382c14"));
+    //ExecuteGetProcedure(connection);
+    ExecuteGetProcedurebyId(connection, new Guid());
 }
 
 
@@ -88,7 +92,6 @@ static void DeletePatiente(SqlConnection connection)
     });
     Console.WriteLine($"Delete - {rows} linhas excluídas");
 }
-
 static void CreateManyPatients(SqlConnection connection)
 {
     var patient = new Patient()
@@ -139,13 +142,42 @@ static void CreateManyPatients(SqlConnection connection)
     });
     Console.WriteLine($"Create - {rows} linhas inseridas");
 }
+static void ExecuteDeleteProcedure(SqlConnection connection,Guid id)
+{
+    var procedure = "spDeletePatient";
+    var param = new { @idPatient = id };
+    var affectedRows = connection.Execute(
+        procedure,
+        param,
+        commandType: CommandType.StoredProcedure);
 
+    Console.WriteLine($"{affectedRows} linhas afetadas");
+}
 
+static void ExecuteGetProcedure(SqlConnection connection)
+{
+    var procedure = "spGetPatient";
+    var patients = connection.Query(
+        procedure,
+        commandType: CommandType.StoredProcedure);
 
+    foreach (var item in patients)
+    {
+        Console.WriteLine($"{item.Id}");
+    }
+}
 
+static void ExecuteGetProcedurebyId(SqlConnection connection, Guid id)
+{
+    var procedure = "spGetPatient";
+    var param = new { @idPatient = id };
+    var patients = connection.Query(
+        procedure,
+        param,
+        commandType: CommandType.StoredProcedure);
 
-
-
-
-
-
+    foreach (var item in patients)
+    {
+        Console.WriteLine($"{item.Id}");
+    }
+}

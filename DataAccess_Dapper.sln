@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DentiSys-DataAccess", "DentiSys-DataAccess\DentiSys-DataAccess.csproj", "{46776A8F-D1C0-4E38-8EC1-1E88708D5265}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DentiSys", "DentiSys-DataAccess\DentiSys.csproj", "{46776A8F-D1C0-4E38-8EC1-1E88708D5265}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -17,9 +17,11 @@ using(var connection = new SqlConnection(connectionString))
     //CreateManyPatients(connection);
     //ExecuteDeleteProcedure(connection, new Guid("b0f1649f-090e-4ab6-88c1-125486382c14"));
     //ExecuteGetProcedure(connection);
-    ExecuteGetProcedurebyId(connection, new Guid());
-}
+    //ExecuteGetProcedurebyId(connection, new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"));
+    //ExecuteScalar(connection);
 
+    ReadView(connection);
+}
 
 static void ListPatients(SqlConnection connection)
 {
@@ -41,6 +43,8 @@ static void GetPatient(SqlConnection connection,Guid idGuid)
     Console.WriteLine($" Name = {patient.Name}\n Age = {patient.Age}\n Height = {patient.Height}\n Weight = {patient.weight}");
     
 }
+
+                                                                /*Sempre que temos um create, update ou delete, temos um retorno como int, de quantos registro foram afetados, igual aos do sql server*/
 static void CreatePatient(SqlConnection connection)
 {
     var patient = new Patient()
@@ -62,7 +66,7 @@ static void CreatePatient(SqlConnection connection)
         @weightParam)";
 
     // retorna a quanidade de linhas afetadas
-    var rows = connection.Execute(insertSQL, new
+    var rows = connection.ExecuteScalar<Guid>(insertSQL, new
     {
         idParam = patient.Id, //patient.Id/ Quando o parâmetro for o mesmo nome, pode somente colocar a propriedade no objeto anônimo.
         nameParam = patient.Name, //patient.Name
@@ -154,6 +158,7 @@ static void ExecuteDeleteProcedure(SqlConnection connection,Guid id)
     Console.WriteLine($"{affectedRows} linhas afetadas");
 }
 
+                                                            /*Os parâmetros passados para execução de uma procedure tem que ter o mesmo nomes do Parâmetro que foi criado no banco de dados. O Dapper faz esse mapeamento automático, então tem que ser igual.*/
 static void ExecuteGetProcedure(SqlConnection connection)
 {
     var procedure = "spGetPatient";
@@ -169,15 +174,64 @@ static void ExecuteGetProcedure(SqlConnection connection)
 
 static void ExecuteGetProcedurebyId(SqlConnection connection, Guid id)
 {
-    var procedure = "spGetPatient";
-    var param = new { @idPatient = id };
-    var patients = connection.Query(
+    var procedure = "spGetPatientById";
+    var param = new { @id = id };
+    var patient = connection.Query<Patient>(
         procedure,
         param,
-        commandType: CommandType.StoredProcedure);
+        commandType: CommandType.StoredProcedure).FirstOrDefault();
+
+        Console.WriteLine($"Id: {patient.Id}\n Name: {patient.Name}\n");
+
+}
+
+/*Executamos em escalar quando queremos um retorno diferente. Ex: ao invés de pegarmos o 
+* retorno em INT que é quantas linhas foram afetadas no ato de um insert, update ou delete, 
+* pegamos como exemplo o Id do objeto que inserimos, ou guid*/
+
+static void ExecuteScalar(SqlConnection connection)
+{
+    var patient = new Patient()
+    {
+        //Id = Guid.NewGuid(),
+        Name = "Pedro",
+        Age = 20,
+        Height = 1.75,
+        weight = 85
+    };
+
+    var insertSQL = @"
+    insert into 
+        [Patients]
+    OUTPUT inserted.Id
+    VALUES (
+        NewID(),
+        @nameParam,
+        @ageParam,
+        @heightParam,
+        @weightParam)";
+        //Select SCOPE_IDENTITY()"; 
+                                                            // O scope identity não funciona quando o Id não é do tipo identity seed, então como o guid não é inteiro, para o guid ele não funciona
+                                                            // Nesse caso podemos usar o OUTPUT inserted.Id, que queremos pegar o valor do campo inserido
+
+    var id = connection.ExecuteScalar<Guid>(insertSQL, new //Como o scalar é simples, não conseguimos trazer uma série de colunas ou um objeto
+    {
+        @nameParam = patient.Name, //patient.Name
+        @ageParam = patient.Age,
+        @heightParam = patient.Height,
+        @weightParam = patient.weight
+    });
+    Console.WriteLine($"Create - Id gerado: {id}");
+}
+
+static void ReadView(SqlConnection connection)
+{
+    var sql = "select * from vwPatients";
+
+    var patients = connection.Query<Patient>(sql);
 
     foreach (var item in patients)
     {
-        Console.WriteLine($"{item.Id}");
+        Console.WriteLine($"Id: {item.Id}\n Name: {item.Name}");
     }
 }

@@ -249,6 +249,7 @@ static void ReadView(SqlConnection connection)
     }
 }
 
+//Dessa forma, nós não conseguimos acessar os valores do relacionamento, dá muito problema na hora de fazer esse mapeamento.
 static void OneToOne(SqlConnection connection)
 {
     var sql = @"
@@ -267,22 +268,31 @@ static void OneToOne(SqlConnection connection)
     }
 }
 
-/*Como sempre utilizamos a orientação a ojetos, queremos mapeares para os objetos específicos
+/*Como sempre utilizamos a orientação a ojetos, queremos mapear para os objetos específicos
   como address e Patient. Queremos ter de fato um objeto dentro do outro*/
 static void OneToOne2(SqlConnection connection)
 {
     var sql = @"
         select 
-            * 
+          p.Id,
+          p.Name,
+          a.Id as AddressId,
+          a.Street,
+          a.Number
         from 
-            PATIENTS 
+            PATIENTS p
         inner join 
-            ADDRESSES ON PATIENTS.AddressId = ADDRESSES.Id";
+            ADDRESSES a ON p.AddressId = a.Id";
 
-    var items = connection.Query(sql);
+    var items = connection.Query<Patient, Address, Patient>(
+        sql,
+        (patient, address) => {
+            patient.Address = address;
+            return patient;
+        }, splitOn: "AddressId");
 
     foreach (var item in items)
     {
-        Console.WriteLine(item.Street);
+        Console.WriteLine($"Rua: {item.Address.Street}\nNumber:{item.Address.Number}");
     }
 }

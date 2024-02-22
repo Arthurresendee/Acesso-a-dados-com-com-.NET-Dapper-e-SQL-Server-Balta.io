@@ -5,6 +5,17 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Data;
 using System.Net.NetworkInformation;
 
+/*
+    O que o Dapper faz?
+    Pega o quem vem do sql server no formato sqlDataRow e transforma para um objeto no c#
+    Isso é tudo que o Dapper faz, por isso que ele é tão rápido.
+
+    Dapper, uma biblioteca de mapeamento objeto-relacional (ORM) leve, que permite que você 
+    mapeie os resultados de uma consulta SQL diretamente para objetos C#
+ */
+
+
+
 var connectionString = "Server=localhost;Database=DB_DentiSys_DataAcces;User ID=sa;Password=root; TrustServerCertificate=true";
 
 using(var connection = new SqlConnection(connectionString))
@@ -20,7 +31,9 @@ using(var connection = new SqlConnection(connectionString))
     //ExecuteGetProcedurebyId(connection, new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"));
     //ExecuteScalar(connection);
 
-    ReadView(connection);
+    //ReadView(connection);
+    //OneToOne(connection);
+    OneToOne2(connection);
 }
 
 static void ListPatients(SqlConnection connection)
@@ -233,5 +246,43 @@ static void ReadView(SqlConnection connection)
     foreach (var item in patients)
     {
         Console.WriteLine($"Id: {item.Id}\n Name: {item.Name}");
+    }
+}
+
+static void OneToOne(SqlConnection connection)
+{
+    var sql = @"
+        select 
+            * 
+        from 
+            PATIENTS 
+        inner join 
+            ADDRESSES ON PATIENTS.AddressId = ADDRESSES.Id";
+
+    var items = connection.Query(sql);
+
+    foreach(var item in items)
+    {
+        Console.WriteLine(item.Age);
+    }
+}
+
+/*Como sempre utilizamos a orientação a ojetos, queremos mapeares para os objetos específicos
+  como address e Patient. Queremos ter de fato um objeto dentro do outro*/
+static void OneToOne2(SqlConnection connection)
+{
+    var sql = @"
+        select 
+            * 
+        from 
+            PATIENTS 
+        inner join 
+            ADDRESSES ON PATIENTS.AddressId = ADDRESSES.Id";
+
+    var items = connection.Query(sql);
+
+    foreach (var item in items)
+    {
+        Console.WriteLine(item.Street);
     }
 }

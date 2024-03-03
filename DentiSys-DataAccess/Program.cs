@@ -38,7 +38,7 @@ using(var connection = new SqlConnection(connectionString))
 
 static void ListPatients(SqlConnection connection)
 {
-    var patientsList = connection.Query<Patient>("SELECT * FROM PATIENTS");
+    var patientsList = connection.Query<Paciente>("SELECT * FROM PATIENTS");
     foreach (var item in patientsList)
     {
         Console.WriteLine($"{item.Name} - {item.Age} - {item.Height} - {item.weight}");
@@ -48,7 +48,7 @@ static void GetPatient(SqlConnection connection,Guid idGuid)
 {
     var getSQL = ("SELECT * FROM PATIENTS where Id = @id");
 
-    var patient = connection.QueryFirstOrDefault<Patient>(getSQL, new
+    var patient = connection.QueryFirstOrDefault<Paciente>(getSQL, new
     {
         id = idGuid
     });
@@ -60,7 +60,7 @@ static void GetPatient(SqlConnection connection,Guid idGuid)
                                                                 /*Sempre que temos um create, update ou delete, temos um retorno como int, de quantos registro foram afetados, igual aos do sql server*/
 static void CreatePatient(SqlConnection connection)
 {
-    var patient = new Patient()
+    var patient = new Paciente()
     {
         Id = Guid.NewGuid(),
         Name = "Flavin do Pneu",
@@ -111,7 +111,7 @@ static void DeletePatiente(SqlConnection connection)
 }
 static void CreateManyPatients(SqlConnection connection)
 {
-    var patient = new Patient()
+    var patient = new Paciente()
     {
         Id = Guid.NewGuid(),
         Name = "Bam Bam",
@@ -119,7 +119,7 @@ static void CreateManyPatients(SqlConnection connection)
         Height = 1.45,
         weight = 120
     };
-    var patient2 = new Patient()
+    var patient2 = new Paciente()
     {
         Id = Guid.NewGuid(),
         Name = "Jão",
@@ -189,7 +189,7 @@ static void ExecuteGetProcedurebyId(SqlConnection connection, Guid id)
 {
     var procedure = "spGetPatientById";
     var param = new { @id = id };
-    var patient = connection.Query<Patient>(
+    var patient = connection.Query<Paciente>(
         procedure,
         param,
         commandType: CommandType.StoredProcedure).FirstOrDefault();
@@ -204,7 +204,7 @@ static void ExecuteGetProcedurebyId(SqlConnection connection, Guid id)
 
 static void ExecuteScalar(SqlConnection connection)
 {
-    var patient = new Patient()
+    var patient = new Paciente()
     {
         //Id = Guid.NewGuid(),
         Name = "Pedro",
@@ -241,7 +241,7 @@ static void ReadView(SqlConnection connection)
 {
     var sql = "select * from vwPatients";
 
-    var patients = connection.Query<Patient>(sql);
+    var patients = connection.Query<Paciente>(sql);
 
     foreach (var item in patients)
     {
@@ -284,7 +284,7 @@ static void OneToOne2(SqlConnection connection)
         inner join 
             ADDRESSES a ON p.AddressId = a.Id";
 
-    var items = connection.Query<Patient, Address, Patient>(
+    var items = connection.Query<Paciente, Endereco, Paciente>(
         sql,
         (patient, address) => {
             patient.Address = address;

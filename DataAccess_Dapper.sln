@@ -8,9 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{99BE6268-33E8-4184-A54F-2C54D12CBB8E}"
 	ProjectSection(SolutionItems) = preProject
 		Anot.README = Anot.README
+		Enums.README = Enums.README
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess_Test", "DataAccess_Dapper_Test\DataAccess_Test.csproj", "{B5687058-C78A-450E-9D8F-1E84C8EA8C8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess_Test", "DataAccess_Dapper_Test\DataAccess_Test.csproj", "{B5687058-C78A-450E-9D8F-1E84C8EA8C8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

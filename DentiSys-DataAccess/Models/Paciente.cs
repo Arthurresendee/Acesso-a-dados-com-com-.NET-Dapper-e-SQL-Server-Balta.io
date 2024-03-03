@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace DentiSys_DataAccess.Models
 {
-    public class Address
+    public class Paciente : Pessoa
     {
-        public Address() { }
-
         public Guid Id { get; set; }
-        public string Street { get; set; }
-        public string Number { get; set; }
-        public string ZIPCode {get;set;}
+        List<PacienteProcedimento> Procedimentos { get; set; }
+        List<PacientePlano> Planos { get; set; }
+        public DateTime CriacaoDoUsuario { get; set; }
     }
-    
 }

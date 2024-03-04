@@ -8,12 +8,11 @@ namespace DentiSys_DataAccess.Enums
 {
     public enum TipoDePlano
     {
-        LimpezaDental = 0,
-        ExtracaoDeDente = 1,
-        restauracaoDeCarie = 2,
-        TratamentoDeCanal =  3,
-        ImplanteDentario = 4,
-        CoroaDentaria = 5,
-        ClareamentoDental = 6
+        PlanoBasico = 0,
+        PlanoFamiliar = 1,
+        PlanoPremium = 2,
+        PlanoDeEmergencia = 3,
+        PlanoDeEsteticaDental = 4,
+        PlanoOrtodontico = 5
     }
 }

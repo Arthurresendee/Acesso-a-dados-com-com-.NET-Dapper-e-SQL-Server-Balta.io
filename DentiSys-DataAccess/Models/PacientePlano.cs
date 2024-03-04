@@ -13,6 +13,7 @@ namespace DentiSys_DataAccess.Models
         public Plano Plano { get; set; }
         public Guid IdPaciente { get; set; }
         public Paciente Paciente { get; set; }
+        public bool PlanoAtivo { get; set; }
 
     }
 }

@@ -10,7 +10,6 @@ namespace DentiSys_DataAccess.Enums
     {
         Paciente = 0,
         Secretaria = 1,
-        Comecial = 2,
-        Fornecedor = 3
+        Comecial = 2
     }
 }

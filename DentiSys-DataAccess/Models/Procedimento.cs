@@ -10,10 +10,9 @@ namespace DentiSys_DataAccess.Models
     public class Procedimento
     {
         public Guid Id { get; set; }
-        
-        public string Nome { get; set; }
+        public string Titulo { get; set; }
+        public TipoDeProcedimento TipoDeProcedimento { get; set; }
         public string Descricao { get; set; }
-        public TipoDeProcedimento Type { get; set; }
-        public List<DateTime> DataDoProcedimento { get; set; } //data em que um determinado procedimento foi realizado ou agendado para ser realizado
+        //public List<DateTime> DataDoProcedimento { get; set; } //data em que um determinado procedimento foi realizado ou agendado para ser realizado
     }
 }

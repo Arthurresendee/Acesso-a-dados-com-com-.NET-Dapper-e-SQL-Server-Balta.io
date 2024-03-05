@@ -14,9 +14,7 @@ using System.Net.NetworkInformation;
     mapeie os resultados de uma consulta SQL diretamente para objetos C#
  */
 
-
-
-var connectionString = "Server=localhost;Database=DB_DentiSys_DataAcces;User ID=sa;Password=root; TrustServerCertificate=true";
+var connectionString = "Server=localhost;Database=DentiSys_DataAcces;User ID=sa;Password=root; TrustServerCertificate=true";
 
 using(var connection = new SqlConnection(connectionString))
 {

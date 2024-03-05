@@ -1,4 +1,5 @@
-﻿using DentiSys_DataAccess.Models;
+﻿using DentiSys_DataAccess.Enums;
+using DentiSys_DataAccess.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace DentiSys_DataAccess.Scripts
             public DateTime DataDeAniversario { get; set; }
             public string Email { get; set; }
             public string NumeroDeTelefone { get; set; }
-            public int MyProperty { get; set; }
+            public TipoDeUsuario TipoDeUsuario { get; set; }
             public Endereco Endereco { get; set; }
 
         }

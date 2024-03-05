@@ -1,6 +1,4 @@
-﻿use DentiSys
-
-create Table Procedimento
+﻿ create Table Procedimento
 (
 	Id uniqueidentifier,
 	Titulo nvarchar(100) null,

@@ -18,12 +18,12 @@ var connectionString = "Server=localhost;Database=DentiSys;User ID=sa;Password=r
 
 using(var connection = new SqlConnection(connectionString))
 {
-    //ListPatients(connection);
+    //ListarTodos(connection);
     //GetPatient(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
-    CriarPaciente(connection);
-    //UpdatePatient(connection);
-    //DeletePatiente(connection);
-    //CreateManyPatients(connection);
+    //CriarPaciente(connection);
+    //UpdatePaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
+    //DeletarPaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
+    CreateManyPatients(connection);
     //ExecuteDeleteProcedure(connection, new Guid("b0f1649f-090e-4ab6-88c1-125486382c14"));
     //ExecuteGetProcedure(connection);
     //ExecuteGetProcedurebyId(connection, new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"));
@@ -35,26 +35,26 @@ using(var connection = new SqlConnection(connectionString))
 
 }
 
-//static void ListPatients(SqlConnection connection)
-//{
-//    var patientsList = connection.Query<Paciente>("select * from Paciente");
-//    foreach (var item in patientsList)
-//    {
-//        Console.WriteLine($"{item.Id} - {item.Nome} - {item.Idade}");
-//    }
-//}
+static void ListarTodos(SqlConnection connection)
+{
+    var patientsList = connection.Query<Paciente>("select * from Paciente");
+    foreach (var item in patientsList)
+    {
+        Console.WriteLine($"{item.Id} - {item.Nome} - {item.Idade}");
+    }
+}
 
-//static void GetPatient(SqlConnection connection, Guid idGuid)
-//{
-//    var getSQL = ("SELECT * FROM Paciente where Id = @id");
+static void GetPatient(SqlConnection connection, Guid idGuid)
+{
+    var getSQL = ("SELECT * FROM Paciente where Id = @id");
 
-//    var paciente = connection.QueryFirstOrDefault<Paciente>(getSQL, new
-//    {
-//        id = idGuid
-//    });
+    var paciente = connection.QueryFirstOrDefault<Paciente>(getSQL, new
+    {
+        id = idGuid
+    });
 
-//    Console.WriteLine($" Id = {paciente.Id}\n Nome = {paciente.Nome}\n Idade = {paciente.Idade}\n Sobrenome = {paciente.SobreNome}");
-//}
+    Console.WriteLine($" Id = {paciente.Id}\n Nome = {paciente.Nome}\n Idade = {paciente.Idade}\n Sobrenome = {paciente.SobreNome}");
+}
 
 /*Sempre que temos um create, update ou delete, temos um retorno como int, de quantos registro foram afetados, igual aos do sql server*/
 static void CriarPaciente(SqlConnection connection)
@@ -68,7 +68,7 @@ static void CriarPaciente(SqlConnection connection)
         IdEndereco = new Guid("1F25D9D7-C9DE-4F9A-8D59-5416D8DAAE13"),
     };
 
-    //Foi necessário Definir quais colunas eu estava tentando inserir, Mas quando se está sozinho em um lugar
+    //Se os dados estivem em sequência, não precisar definir as colunas.   
     var insertSQL = @"insert into 
         [Paciente]
         (Id, Nome, Idade, Email, IdEndereco)
@@ -91,76 +91,81 @@ static void CriarPaciente(SqlConnection connection)
     });
     Console.WriteLine($"Create - {rows} linhas inseridas");
 }
-//static void UpdatePatient(SqlConnection connection)
-//{
-//    var updateQuery = "UPDATE [Patients] set Name = @name where Id = @id";
 
-//    var rows = connection.Execute(updateQuery, new
-//    {
-//        id = new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"),
-//        name = "Zé da Manga"
-//    });
-//    Console.WriteLine($"Update - {rows} registros atualizados");
-//}
-//static void DeletePatiente(SqlConnection connection)
-//{
-//    var deleteSQL = "Delete [Patients] where @id = Id";
-//    var rows = connection.Execute(deleteSQL, new
-//    {
-//        id = new Guid("fc47b520-9bd8-4c5b-a9fd-01fc89c720d6")
-//    });
-//    Console.WriteLine($"Delete - {rows} linhas excluídas");
-//}
-//static void CreateManyPatients(SqlConnection connection)
-//{
-//    var patient = new Paciente()
-//    {
-//        Id = Guid.NewGuid(),
-//        Name = "Bam Bam",
-//        Age = 50,
-//        Height = 1.45,
-//        weight = 120
-//    };
-//    var patient2 = new Paciente()
-//    {
-//        Id = Guid.NewGuid(),
-//        Name = "Jão",
-//        Age = 32,
-//        Height = 1.61,
-//        weight = 86
-//    };
+static void UpdatePaciente(SqlConnection connection, Guid idPaciente)
+{
+    var updateQuery = "UPDATE [Paciente] set Nome = @novoNome where Id = @idDoPacienteParaAtualizar";
 
-//    var insertSQL = @"insert into 
-//        [Patients] 
-//    VALUES (
-//        @idParam,
-//        @nameParam,
-//        @ageParam,
-//        @heightParam,
-//        @weightParam)";
+    var rows = connection.Execute(updateQuery, new
+    {
+        idDoPacienteParaAtualizar = idPaciente,
+        novoNome = "Serjão Berranteiro  "
+    });
+    Console.WriteLine($"Update - {rows} registros atualizados");
+}
 
-//    // retorna a quanidade de linhas afetadas
-//    var rows = connection.Execute(insertSQL, new[]
-//    {
-//        new
-//        {
-//            idParam = patient.Id, //patient.Id/ Quando o parâmetro for o mesmo nome, pode somente colocar a propriedade no objeto anônimo.
-//            nameParam = patient.Name, //patient.Name
-//            ageParam = patient.Age,
-//            heightParam = patient.Height,
-//            weightParam = patient.weight
-//        },
-//        new
-//        {
-//            idParam = patient2.Id, //patient.Id/ Quando o parâmetro for o mesmo nome, pode somente colocar a propriedade no objeto anônimo.
-//            nameParam = patient2.Name, //patient.Name
-//            ageParam = patient2.Age,
-//            heightParam = patient2.Height,
-//            weightParam = patient2.weight
-//        }
-//    });
-//    Console.WriteLine($"Create - {rows} linhas inseridas");
-//}
+static void DeletarPaciente(SqlConnection connection, Guid idPaciente)
+{
+    var deleteSQL = "Delete [Paciente] where Id = @idDoPacienteParaDeletar";
+    var rows = connection.Execute(deleteSQL, new
+    {
+        //id = new Guid("fc47b520-9bd8-4c5b-a9fd-01fc89c720d6")
+        idDoPacienteParaDeletar = idPaciente
+    });
+    Console.WriteLine($"Delete - {rows} linhas excluídas");
+}
+
+static void CreateManyPatients(SqlConnection connection)
+{
+    var patient = new Paciente()
+    {
+        Id = Guid.NewGuid(),
+        Nome = "Bam Bam",
+        Idade = 50,
+        Email = "naopossui@gmail.com",
+        IdEndereco = new Guid("7B5A3D89-625E-439F-AF3E-F29E0FF2C4CB")
+    };
+    var patient2 = new Paciente()
+    {
+        Id = Guid.NewGuid(),
+        Nome = "Jão",
+        Idade = 32,
+        Email = "Jao244@gmail.com ",
+        IdEndereco = new Guid("D7484AB8-B62C-4F4F-BC57-F1CFEA3E5607")
+    };
+
+    var insertSQL = @"insert into 
+        [Paciente] 
+        (Id, Nome, Idade, Email,IdEndereco)
+    VALUES (
+        @paramId,
+        @paramNome,
+        @paramIdade,
+        @paramEmail,
+        @paramIdEndereco)";
+
+    // retorna a quanidade de linhas afetadas
+    var rows = connection.Execute(insertSQL, new[]
+    {
+        new
+        {
+            paramId = patient.Id, //patient.Id/ Quando o parâmetro for o mesmo nome, pode somente colocar a propriedade no objeto anônimo.
+            paramNome = patient.Nome, //patient.Name
+            paramIdade = patient.Idade,
+            paramEmail = patient.Email,
+            paramIdEndereco = patient.IdEndereco
+        },
+        new
+        {
+            paramId = patient2.Id, //patient.Id/ Quando o parâmetro for o mesmo nome, pode somente colocar a propriedade no objeto anônimo.
+            paramNome = patient2.Nome, //patient.Name
+            paramIdade = patient2.Idade,
+            paramEmail = patient2.Email,
+            paramIdEndereco = patient2.IdEndereco
+        }
+    });
+    Console.WriteLine($"Create - {rows} linhas inseridas");
+}
 //static void ExecuteDeleteProcedure(SqlConnection connection,Guid id)
 //{
 //    var procedure = "spDeletePatient";

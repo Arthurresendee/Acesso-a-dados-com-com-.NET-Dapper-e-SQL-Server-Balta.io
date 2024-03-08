@@ -23,11 +23,11 @@ using(var connection = new SqlConnection(connectionString))
     //CriarPaciente(connection);
     //UpdatePaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
     //DeletarPaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
-    CreateManyPatients(connection);
-    //ExecuteDeleteProcedure(connection, new Guid("b0f1649f-090e-4ab6-88c1-125486382c14"));
-    //ExecuteGetProcedure(connection);
-    //ExecuteGetProcedurebyId(connection, new Guid("8b037ee7-f124-4fa6-b551-0183c70eba57"));
-    //ExecuteScalar(connection);
+    //CriarMuitosPacientes(connection);
+    //ExecuteDeleteProcedure(connection, new Guid("B3DE8154-BA20-435B-8686-01C1519DB13F"));
+    //ExecuteProcedureGetPacientes(connection);
+    //ExecuteProcedureGetPacienteById(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
+    ExecuteScalar(connection);
 
     //ReadView(connection);
     //OneToOne(connection);
@@ -115,7 +115,7 @@ static void DeletarPaciente(SqlConnection connection, Guid idPaciente)
     Console.WriteLine($"Delete - {rows} linhas excluídas");
 }
 
-static void CreateManyPatients(SqlConnection connection)
+static void CriarMuitosPacientes(SqlConnection connection)
 {
     var patient = new Paciente()
     {
@@ -144,7 +144,7 @@ static void CreateManyPatients(SqlConnection connection)
         @paramEmail,
         @paramIdEndereco)";
 
-    // retorna a quanidade de linhas afetadas
+    // Usamos o mesmo modelo de string sql para inserir vários objetos diferentes
     var rows = connection.Execute(insertSQL, new[]
     {
         new
@@ -166,83 +166,84 @@ static void CreateManyPatients(SqlConnection connection)
     });
     Console.WriteLine($"Create - {rows} linhas inseridas");
 }
-//static void ExecuteDeleteProcedure(SqlConnection connection,Guid id)
-//{
-//    var procedure = "spDeletePatient";
-//    var param = new { @idPatient = id };
-//    var affectedRows = connection.Execute(
-//        procedure,
-//        param,
-//        commandType: CommandType.StoredProcedure);
 
-//    Console.WriteLine($"{affectedRows} linhas afetadas");
-//}
+/*Os parâmetros passados para execução de uma procedure tem que ter o mesmo nomes do Parâmetro que foi criado no banco de dados. O Dapper faz esse mapeamento automático, então tem que ser igual.*/
+static void ExecuteDeleteProcedure(SqlConnection connection, Guid id)
+{
+    var procedure = "spDeletePaciente";
+    var param = new { @idPaciente = id };
+    var affectedRows = connection.Execute(
+        procedure,
+        param,
+        commandType: CommandType.StoredProcedure);
 
-//                                                            /*Os parâmetros passados para execução de uma procedure tem que ter o mesmo nomes do Parâmetro que foi criado no banco de dados. O Dapper faz esse mapeamento automático, então tem que ser igual.*/
-//static void ExecuteGetProcedure(SqlConnection connection)
-//{
-//    var procedure = "spGetPatient";
-//    var patients = connection.Query(
-//        procedure,
-//        commandType: CommandType.StoredProcedure);
+    Console.WriteLine($"{affectedRows} linhas afetadas");
+}
 
-//    foreach (var item in patients)
-//    {
-//        Console.WriteLine($"{item.Id}");
-//    }
-//}
+static void ExecuteProcedureGetPacientes(SqlConnection connection)
+{
+    var procedure = "spGetPacientes";
+    var patients = connection.Query<Paciente>(
+        procedure,
+        commandType: CommandType.StoredProcedure);
 
-//static void ExecuteGetProcedurebyId(SqlConnection connection, Guid id)
-//{
-//    var procedure = "spGetPatientById";
-//    var param = new { @id = id };
-//    var patient = connection.Query<Paciente>(
-//        procedure,
-//        param,
-//        commandType: CommandType.StoredProcedure).FirstOrDefault();
+    foreach (var item in patients)
+    {
+        Console.WriteLine($"Id:{item.Id} - Nome:{item.Nome}\n");
+    }
+}
 
-//        Console.WriteLine($"Id: {patient.Id}\n Name: {patient.Name}\n");
+static void ExecuteProcedureGetPacienteById(SqlConnection connection, Guid id)
+{
+    var procedure = "spGetPacienteById";
+    var param = new { @id = id };
+    var patient = connection.Query<Paciente>(
+        procedure,
+        param,
+        commandType: CommandType.StoredProcedure).FirstOrDefault();
 
-//}
+    Console.WriteLine($"Id: {patient.Id} - Nome: {patient.Nome}\n");
 
-///*Executamos em escalar quando queremos um retorno diferente. Ex: ao invés de pegarmos o 
-//* retorno em INT que é quantas linhas foram afetadas no ato de um insert, update ou delete, 
-//* pegamos como exemplo o Id do objeto que inserimos, ou guid*/
+}
 
-//static void ExecuteScalar(SqlConnection connection)
-//{
-//    var patient = new Paciente()
-//    {
-//        //Id = Guid.NewGuid(),
-//        Name = "Pedro",
-//        Age = 20,
-//        Height = 1.75,
-//        weight = 85
-//    };
+/*Executamos em escalar quando queremos um retorno diferente. Ex: ao invés de pegarmos o 
+* retorno em INT que é quantas linhas foram afetadas no ato de um insert, update ou delete, 
+* pegamos como exemplo o Id do objeto que inserimos, ou guid*/
 
-//    var insertSQL = @"
-//    insert into 
-//        [Patients]
-//    OUTPUT inserted.Id
-//    VALUES (
-//        NewID(),
-//        @nameParam,
-//        @ageParam,
-//        @heightParam,
-//        @weightParam)";
-//        //Select SCOPE_IDENTITY()"; 
-//                                                            // O scope identity não funciona quando o Id não é do tipo identity seed, então como o guid não é inteiro, para o guid ele não funciona
-//                                                            // Nesse caso podemos usar o OUTPUT inserted.Id, que queremos pegar o valor do campo inserido
+static void ExecuteScalar(SqlConnection connection)
+{
+    var patient = new Paciente()
+    {
+        //Id = Guid.NewGuid(),
+        Name = "Pedro",
+        Age = 20,
+        Height = 1.75,
+        weight = 85
+    };
 
-//    var id = connection.ExecuteScalar<Guid>(insertSQL, new //Como o scalar é simples, não conseguimos trazer uma série de colunas ou um objeto
-//    {
-//        @nameParam = patient.Name, //patient.Name
-//        @ageParam = patient.Age,
-//        @heightParam = patient.Height,
-//        @weightParam = patient.weight
-//    });
-//    Console.WriteLine($"Create - Id gerado: {id}");
-//}
+    var insertSQL = @"
+    insert into 
+        [Patients]
+    OUTPUT inserted.Id
+    VALUES (
+        NewID(),
+        @nameParam,
+        @ageParam,
+        @heightParam,
+        @weightParam)";
+    //Select SCOPE_IDENTITY()"; 
+    // O scope identity não funciona quando o Id não é do tipo identity seed, então como o guid não é inteiro, para o guid ele não funciona
+    // Nesse caso podemos usar o OUTPUT inserted.Id, que queremos pegar o valor do campo inserido
+
+    var id = connection.ExecuteScalar<Guid>(insertSQL, new //Como o scalar é simples, não conseguimos trazer uma série de colunas ou um objeto
+    {
+        @nameParam = patient.Name, //patient.Name
+        @ageParam = patient.Age,
+        @heightParam = patient.Height,
+        @weightParam = patient.weight
+    });
+    Console.WriteLine($"Create - Id gerado: {id}");
+}
 
 //static void ReadView(SqlConnection connection)
 //{

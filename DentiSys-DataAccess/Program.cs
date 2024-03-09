@@ -28,9 +28,9 @@ using(var connection = new SqlConnection(connectionString))
     //ExecuteProcedureGetPacientes(connection);
     //ExecuteProcedureGetPacienteById(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
     //ExecuteScalar(connection);
-    ReadView(connection);
-    //OneToOne(connection);
-    //OneToOne2(connection);
+    //ReadView(connection);
+    //OneToOneErrado(connection);
+    OneToOne(connection);
 
 }
 
@@ -255,51 +255,51 @@ static void ReadView(SqlConnection connection)
     }
 }
 
-//Dessa forma, nós não conseguimos acessar os valores do relacionamento, dá muito problema na hora de fazer esse mapeamento.
-//static void OneToOne(SqlConnection connection)
-//{
-//    var sql = @"
-//        select 
-//            * 
-//        from 
-//            PATIENTS 
-//        inner join 
-//            ADDRESSES ON PATIENTS.AddressId = ADDRESSES.Id";
-
-//    var items = connection.Query(sql);
-
-//    foreach (var item in items)
-//    {
-//        Console.WriteLine(item.Age);
-//    }
-//}
-
-/*Como sempre utilizamos a orientação a ojetos, queremos mapear para os objetos específicos
-  como Endereco e Paciente. Queremos ter de fato um objeto dentro do outro*/
-static void OneToOne2(SqlConnection connection)
+static void OneToOneErrado(SqlConnection connection)
 {
+    //Funciona? sim. Está errado? Sim, pois não estamos mapeando para um objeto em sí. Estamos pegando os valores de uma coluna do relacionamento com tipo dinâmico, Podendo existir ou não essa coluna. Como estamos retornando valores de um select que possui relacionamento, precisamos tranformar em objeto no c#, por isso estamos utilizando dapper. Justamente para transformar o que vem do SQL SERVER em objeto..
     var sql = @"
         select 
-          p.Id,
-          p.Name,
-          a.Id as AddressId,
-          a.Street,
-          a.Number
+          *
         from 
-            PATIENTS p
+            Paciente
         inner join 
-            ADDRESSES a ON p.AddressId = a.Id";
+            Endereco ON Paciente.IdEndereco = Endereco.Id";
 
-    var items = connection.Query<Paciente, Endereco, Paciente>(
-        sql,
-        (patient, address) =>
-        {
-            patient.Address = address;
-            return patient;
-        }, splitOn: "AddressId");
+    var items = connection.Query(sql);
 
     foreach (var item in items)
     {
-        Console.WriteLine($"Rua: {item.Address.Street}\nNumber:{item.Address.Number}");
+        Console.WriteLine(item.Teste);
     }
-//}
+}
+
+/*Como sempre utilizamos a orientação a ojetos, queremos mapear para os objetos específicos
+  como Endereco e Paciente. Queremos ter de fato um objeto dentro do outro*/
+static void OneToOne(SqlConnection connection)
+{
+    var sql = @"
+        select 
+          Paciente.Id,
+          Paciente.Nome,
+          Endereco.Id as IdDoEndereco,
+          Endereco.CEP,
+          Endereco.Estado
+        from 
+            Paciente
+        inner join 
+            Endereco ON Paciente.IdEndereco = Endereco.Id";
+
+    var items = connection.Query<Paciente, Endereco, Paciente>(//Eu tenho um Paciente, mas também tenho um Endereco, e o resultado dessa consulta será um Paciente
+        sql,    //depois da instrução sql, tenho que dizer como que vai carregar esse praciente pra mim Fazemos isso atravé de uma função () => {}
+        (Paciente paciente, Endereco endereco) => // ( , ) => {}  //(paciente, endereco) =>
+        {
+            paciente.Endereco = endereco;   //O que estou dizendo aqui? Que o Objeto Endereco que vier dentro de Paciente, será do tipo complexo Endereco
+            return paciente;                    // Aqui eu estou retornando um Objeto do tipo Paciente que possui um Endereco dentro dele.
+        }, splitOn: "IdDoEndereco");   //Última informação que temos que passar é onde a consulta é dividida.
+
+    foreach (var item in items)
+    {
+        Console.WriteLine($"Id: {item.Id}, Nome: {item.Nome}, Estado: {item.Endereco.Estado}");
+    }
+}

@@ -27,9 +27,8 @@ using(var connection = new SqlConnection(connectionString))
     //ExecuteDeleteProcedure(connection, new Guid("B3DE8154-BA20-435B-8686-01C1519DB13F"));
     //ExecuteProcedureGetPacientes(connection);
     //ExecuteProcedureGetPacienteById(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
-    ExecuteScalar(connection);
-
-    //ReadView(connection);
+    //ExecuteScalar(connection);
+    ReadView(connection);
     //OneToOne(connection);
     //OneToOne2(connection);
 
@@ -209,55 +208,54 @@ static void ExecuteProcedureGetPacienteById(SqlConnection connection, Guid id)
 /*Executamos em escalar quando queremos um retorno diferente. Ex: ao invés de pegarmos o 
 * retorno em INT que é quantas linhas foram afetadas no ato de um insert, update ou delete, 
 * pegamos como exemplo o Id do objeto que inserimos, ou guid*/
-
 static void ExecuteScalar(SqlConnection connection)
 {
-    var patient = new Paciente()
+    var paciente = new Paciente()
     {
         //Id = Guid.NewGuid(),
-        Name = "Pedro",
-        Age = 20,
-        Height = 1.75,
-        weight = 85
+        Nome = "Pedro",
+        Idade = 20
     };
 
     var insertSQL = @"
     insert into 
-        [Patients]
+        [Paciente]
+        (Id, Nome, Idade, IdEndereco)
     OUTPUT inserted.Id
-    VALUES (
-        NewID(),
-        @nameParam,
-        @ageParam,
-        @heightParam,
-        @weightParam)";
+    VALUES 
+        (
+        NEWID(),
+        @parametroNome,
+        @parametroIdade,
+        @parametroIdEndereco
+        )";
     //Select SCOPE_IDENTITY()"; 
-    // O scope identity não funciona quando o Id não é do tipo identity seed, então como o guid não é inteiro, para o guid ele não funciona
+    // O scope identity não funciona quando o Id não é do tipo identity seed, então como o guid não é inteiro, para o guid o identity não funciona.
     // Nesse caso podemos usar o OUTPUT inserted.Id, que queremos pegar o valor do campo inserido
 
     var id = connection.ExecuteScalar<Guid>(insertSQL, new //Como o scalar é simples, não conseguimos trazer uma série de colunas ou um objeto
     {
-        @nameParam = patient.Name, //patient.Name
-        @ageParam = patient.Age,
-        @heightParam = patient.Height,
-        @weightParam = patient.weight
+        parametroId = paciente.Id,
+        parametroNome = paciente.Nome, //patient.Name
+        parametroIdade = paciente.Idade,
+        parametroIdEndereco = new Guid("5C28E04B-9F6E-4B75-883F-47937E93D118")
     });
     Console.WriteLine($"Create - Id gerado: {id}");
 }
 
-//static void ReadView(SqlConnection connection)
-//{
-//    var sql = "select * from vwPatients";
+static void ReadView(SqlConnection connection)
+{
+    var sql = "select * from vwTodosOsPacientes";
 
-//    var patients = connection.Query<Paciente>(sql);
+    var patients = connection.Query<Paciente>(sql);
 
-//    foreach (var item in patients)
-//    {
-//        Console.WriteLine($"Id: {item.Id}\n Name: {item.Name}");
-//    }
-//}
+    foreach (var item in patients)
+    {
+        Console.WriteLine($"Id: {item.Id}, Name: {item.Nome} \n");
+    }
+}
 
-////Dessa forma, nós não conseguimos acessar os valores do relacionamento, dá muito problema na hora de fazer esse mapeamento.
+//Dessa forma, nós não conseguimos acessar os valores do relacionamento, dá muito problema na hora de fazer esse mapeamento.
 //static void OneToOne(SqlConnection connection)
 //{
 //    var sql = @"
@@ -270,37 +268,38 @@ static void ExecuteScalar(SqlConnection connection)
 
 //    var items = connection.Query(sql);
 
-//    foreach(var item in items)
+//    foreach (var item in items)
 //    {
 //        Console.WriteLine(item.Age);
 //    }
 //}
 
-///*Como sempre utilizamos a orientação a ojetos, queremos mapear para os objetos específicos
-//  como address e Patient. Queremos ter de fato um objeto dentro do outro*/
-//static void OneToOne2(SqlConnection connection)
-//{
-//    var sql = @"
-//        select 
-//          p.Id,
-//          p.Name,
-//          a.Id as AddressId,
-//          a.Street,
-//          a.Number
-//        from 
-//            PATIENTS p
-//        inner join 
-//            ADDRESSES a ON p.AddressId = a.Id";
+/*Como sempre utilizamos a orientação a ojetos, queremos mapear para os objetos específicos
+  como Endereco e Paciente. Queremos ter de fato um objeto dentro do outro*/
+static void OneToOne2(SqlConnection connection)
+{
+    var sql = @"
+        select 
+          p.Id,
+          p.Name,
+          a.Id as AddressId,
+          a.Street,
+          a.Number
+        from 
+            PATIENTS p
+        inner join 
+            ADDRESSES a ON p.AddressId = a.Id";
 
-//    var items = connection.Query<Paciente, Endereco, Paciente>(
-//        sql,
-//        (patient, address) => {
-//            patient.Address = address;
-//            return patient;
-//        }, splitOn: "AddressId");
+    var items = connection.Query<Paciente, Endereco, Paciente>(
+        sql,
+        (patient, address) =>
+        {
+            patient.Address = address;
+            return patient;
+        }, splitOn: "AddressId");
 
-//    foreach (var item in items)
-//    {
-//        Console.WriteLine($"Rua: {item.Address.Street}\nNumber:{item.Address.Number}");
-//    }
+    foreach (var item in items)
+    {
+        Console.WriteLine($"Rua: {item.Address.Street}\nNumber:{item.Address.Number}");
+    }
 //}

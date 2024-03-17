@@ -30,8 +30,8 @@ using(var connection = new SqlConnection(connectionString))
     //ExecuteScalar(connection);
     //ReadView(connection);
     //OneToOneErrado(connection);
-    OneToOne(connection);
-
+    //OneToOne(connection);
+    OneToManyP1(connection);
 }
 
 static void ListarTodos(SqlConnection connection)
@@ -298,8 +298,41 @@ static void OneToOne(SqlConnection connection)
             return paciente;                    // Aqui eu estou retornando um Objeto do tipo Paciente que possui um Endereco dentro dele.
         }, splitOn: "IdDoEndereco");   //Última informação que temos que passar é onde a consulta é dividida.
 
-    foreach (var item in items)
+    foreach (var item in items) //Como resultado, nós temos os dois objetos populados
     {
         Console.WriteLine($"Id: {item.Id}, Nome: {item.Nome}, Estado: {item.Endereco.Estado}");
     }
 }
+
+static void OneToManyP1(SqlConnection connection)
+{
+    var sql = @"
+        select 
+	        p.Id,
+	        p.Nome,
+            p.Sobrenome,
+	        pp.IdPaciente,
+	        pp.IdProcedimento,
+	        pp.DataProcedimento
+        from
+	        Paciente p 
+        inner join 
+	        PacienteProcedimento pp on pp.IdPaciente = p.Id
+	       order by p.Nome";
+
+    var pacientes = connection.Query<Paciente, PacienteProcedimento, Paciente>(     //Eu tenho um Paciente, mas também tenho um Endereco, e o resultado dessa consulta será um Paciente
+        sql,                                                //depois da instrução sql, tenho que dizer como que vai carregar esse praciente pra mim Fazemos isso atravé de uma função () => {}
+        (paciente, pacienteProcedimento) =>       // ( , ) => {}  //(paciente, endereco) =>
+        {                                      //O que estou dizendo aqui? Que o Objeto Endereco que vier dentro de Paciente, será do tipo complexo Endereco
+            return paciente;                                                    // Aqui eu estou retornando um Objeto do tipo Paciente que possui um Endereco dentro dele.
+        }, splitOn: "IdPaciente");                                            //Última informação que temos que passar é onde a consulta é dividida.
+
+    foreach (var paciente in pacientes)                                                 //Como resultado, nós temos os dois objetos populados
+    {
+        Console.WriteLine($"Nome: {paciente.Nome},Sobrenome:{paciente.SobreNome}");
+        foreach (var item in paciente.PacienteProcedimentos)                                                 //Como resultado, nós temos os dois objetos populados
+        {
+            Console.WriteLine($", IdProcedimento: {item.IdProcedimento}, DatadaProcedimento: {item.DataProcedimento}");
+        }
+    }
+} //Aqui não populou os itens de PacienteProcedimento

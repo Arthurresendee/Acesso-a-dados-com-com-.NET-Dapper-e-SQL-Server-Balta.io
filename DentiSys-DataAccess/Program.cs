@@ -31,7 +31,8 @@ using(var connection = new SqlConnection(connectionString))
     //ReadView(connection);
     //OneToOneErrado(connection);
     //OneToOne(connection);
-    OneToManyP1(connection);
+    //OneToMany(connection);
+    QueryMultiple(connection);
 }
 
 static void ListarTodos(SqlConnection connection)
@@ -336,3 +337,73 @@ static void OneToManyP1(SqlConnection connection)
         }
     }
 } //Aqui não populou os itens de PacienteProcedimento
+
+static void OneToMany(SqlConnection connection)
+{
+    var sql = @"
+        select 
+	        p.Id,
+	        p.Nome,
+            p.Sobrenome,
+	        pp.IdPaciente,
+	        pp.IdProcedimento,
+	        pp.DataProcedimento
+        from
+	        Paciente p 
+        inner join 
+	        PacienteProcedimento pp on pp.IdPaciente = p.Id
+	       order by p.Nome";
+
+    var pacientes = new List<Paciente>();
+    var pacienteList = connection.Query<Paciente, PacienteProcedimento, Paciente>(
+        sql,
+        (paciente, pacienteProcedimento) =>
+        {
+            
+            var pac = pacientes.Where(x => x.Id == paciente.Id).FirstOrDefault();
+            if( pac == null)
+            {
+                pac = paciente;
+                pac.PacienteProcedimentos.Add(pacienteProcedimento);
+                pacientes.Add(pac);
+            }
+            else
+            {
+                pac.PacienteProcedimentos.Add(pacienteProcedimento);
+            }
+
+            paciente.PacienteProcedimentos.Add(pacienteProcedimento);
+            return paciente;
+        }, splitOn: "IdPaciente");
+
+    foreach (var paciente in pacienteList)
+    {
+        Console.WriteLine($"Nome: {paciente.Nome},Sobrenome:{paciente.SobreNome}");
+        foreach (var item in paciente.PacienteProcedimentos)
+        {
+            Console.WriteLine($"- IdProcedimento: {item.IdProcedimento}- DatadaProcedimento: {item.DataProcedimento}");
+        }
+    }
+}
+
+static void QueryMultiple(SqlConnection connection)
+{
+    var query = "select *  from Paciente; select * from Procedimento";
+
+    using (var multi = connection.QueryMultiple(query))
+    {
+        var pacientes = multi.Read<Paciente>();
+        var procedimentos = multi.Read<Procedimento>();
+
+        foreach (var item in pacientes)
+        {
+            Console.WriteLine($"IdPaciente: {item.Id}");
+        }
+
+        foreach (var item in procedimentos)
+        {
+            Console.WriteLine($"IdProcedimento: {item.Id}");
+        }
+    }
+
+}

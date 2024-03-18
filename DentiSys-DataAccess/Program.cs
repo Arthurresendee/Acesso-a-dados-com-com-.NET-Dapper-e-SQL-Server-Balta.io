@@ -32,7 +32,9 @@ using(var connection = new SqlConnection(connectionString))
     //OneToOneErrado(connection);
     //OneToOne(connection);
     //OneToMany(connection);
-    QueryMultiple(connection);
+    //QueryMultiple(connection);
+    //SelectIn(connection);
+    Like(connection, "Tratamento");
 }
 
 static void ListarTodos(SqlConnection connection)
@@ -388,7 +390,8 @@ static void OneToMany(SqlConnection connection)
 
 static void QueryMultiple(SqlConnection connection)
 {
-    var query = "select *  from Paciente; select * from Procedimento";
+    var query = @"select *  from Paciente; 
+                  select * from Procedimento";
 
     using (var multi = connection.QueryMultiple(query))
     {
@@ -405,5 +408,37 @@ static void QueryMultiple(SqlConnection connection)
             Console.WriteLine($"IdProcedimento: {item.Id}");
         }
     }
+}
 
+static void SelectIn(SqlConnection connection)
+{
+    var query = "select * from Paciente where Id in @Id";
+
+    var items = connection.Query<Paciente>(query, new{
+        Id = new[] {
+            "FB0C3A72-B0F3-40E3-A234-1E33A3D90037",
+            "B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F",
+            "0C58E61C-CE9D-44E3-A769-560A3DB82E4C"
+        }
+    });
+
+    foreach (var item in items)
+    {
+        Console.WriteLine($"Id: {item.Id} - Nome: {item.Nome}");
+    }
+}
+
+static void Like(SqlConnection connection, string term)
+{
+    var query = "select * from Procedimento where Descricao like @exp";
+
+    var items = connection.Query<Procedimento>(query, new
+    {
+        exp = $"%{term}%"
+    });
+
+    foreach (var item in items)
+    {
+        Console.WriteLine($"Id: {item.Id} - Titulo: {item.Titulo} - Descricao: {item.Descricao}");
+    }
 }

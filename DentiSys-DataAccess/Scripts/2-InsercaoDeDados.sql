@@ -1,4 +1,8 @@
 ﻿--------------------------------
+
+
+
+--Adicionar o Begin transaction e commit antes dos inserts, para testar os campos inseridos e evitar problemas.
 -- -Endereco
 INSERT INTO [Endereco] ([Id], [CEP], [Pais], [Estado], [Rua], [Numero])
 VALUES

@@ -1,9 +1,11 @@
 ﻿  using Dapper;
 using DentiSys_DataAccess.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Data;
 using System.Net.NetworkInformation;
+using System.Transactions;
 
 /*
     O que o Dapper faz?
@@ -14,28 +16,29 @@ using System.Net.NetworkInformation;
     mapeie os resultados de uma consulta SQL diretamente para objetos C#
  */
 
-var connectionString = "Server=localhost;Database=DentiSys;User ID=sa;Password=root; TrustServerCertificate=true";
+var connectionString = "Server=localhost;Database=DentiSys_DapperDataAccess;User ID=sa;Password=root; TrustServerCertificate=true";
 
 using(var connection = new SqlConnection(connectionString))
 {
-    //ListarTodos(connection);
-    //GetPatient(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
-    //CriarPaciente(connection);
-    //UpdatePaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
-    //DeletarPaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
-    //CriarMuitosPacientes(connection);
-    //ExecuteDeleteProcedure(connection, new Guid("B3DE8154-BA20-435B-8686-01C1519DB13F"));
-    //ExecuteProcedureGetPacientes(connection);
-    //ExecuteProcedureGetPacienteById(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
-    //ExecuteScalar(connection);
-    //ReadView(connection);
-    //OneToOneErrado(connection);
-    //OneToOne(connection);
-    //OneToMany(connection);
-    //QueryMultiple(connection);
-    //SelectIn(connection);
+    ListarTodos(connection);
+    GetPatient(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
+    CriarPaciente(connection);
+    UpdatePaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
+    DeletarPaciente(connection, new Guid("57AA0262-F430-4F3D-AE01-9C72F21FBC3F"));
+    CriarMuitosPacientes(connection);
+    ExecuteDeleteProcedure(connection, new Guid("B3DE8154-BA20-435B-8686-01C1519DB13F"));
+    ExecuteProcedureGetPacientes(connection);
+    ExecuteProcedureGetPacienteById(connection, new Guid("B2A83A96-4EDC-4E3B-BF1D-1C27CF90375F"));
+    ExecuteScalar(connection);
+    ReadView(connection);
+    OneToOneErrado(connection);
+    OneToOne(connection);
+    OneToMany(connection);
+    QueryMultiple(connection);
+    SelectIn(connection);
     Like(connection, "Tratamento");
 }
+
 
 static void ListarTodos(SqlConnection connection)
 {
@@ -273,7 +276,7 @@ static void OneToOneErrado(SqlConnection connection)
 
     foreach (var item in items)
     {
-        Console.WriteLine(item.Teste);
+        //Console.WriteLine(item.Teste);
     }
 }
 
@@ -442,3 +445,5 @@ static void Like(SqlConnection connection, string term)
         Console.WriteLine($"Id: {item.Id} - Titulo: {item.Titulo} - Descricao: {item.Descricao}");
     }
 }
+
+//Transaction

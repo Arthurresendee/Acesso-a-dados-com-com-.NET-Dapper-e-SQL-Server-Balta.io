@@ -16,7 +16,7 @@ using System.Transactions;
     mapeie os resultados de uma consulta SQL diretamente para objetos C#
  */
 
-var connectionString = "Server=localhost;Database=DentiSys_DapperDataAccess;User ID=sa;Password=root; TrustServerCertificate=true";
+var connectionString = "Server=localhost;Database=DentiSys-LearningDapper;User ID=sa;Password=root; TrustServerCertificate=true";
 
 using(var connection = new SqlConnection(connectionString))
 {
